@@ -1,13 +1,25 @@
-jQuery(document).ready(function($) {
-    // Function to populate quick edit with custom field data
-    function setNoindexQuickEdit() {
-        var post_id = inlineEditPost.getId(this);
-        var noindex = $('#post-' + post_id).find('.column-noindex').text().trim() === 'Yes' ? 1 : 0;
-        
-        // Set the value in the quick edit field
-        $('input[name="noindex"]', '.inline-edit-row').prop('checked', noindex);
+(function ($) {
+    if (typeof inlineEditPost === 'undefined') {
+        return;
     }
 
-    // Attach the function to the quick edit button
-    $('body').on('click', 'a.editinline', setNoindexQuickEdit);
-});
+    var wpInlineEdit = inlineEditPost.edit;
+
+    inlineEditPost.edit = function (id) {
+        wpInlineEdit.apply(this, arguments);
+
+        var postId = 0;
+        if (typeof id === 'object') {
+            postId = parseInt(this.getId(id), 10);
+        } else {
+            postId = parseInt(id, 10);
+        }
+
+        if (!postId) {
+            return;
+        }
+
+        var allowed = $('#post-' + postId).find('.nq-index-allow').attr('data-index-allow');
+        $('#edit-' + postId).find('input[name="index_allow"]').prop('checked', allowed === '1');
+    };
+})(jQuery);
